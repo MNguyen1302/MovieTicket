@@ -38,9 +38,9 @@ const signup = async (req, res) => {
 const signin = async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log(username);
+
     const user = await userModel.findOne({ username }).select("username password salt id displayName");
-    console.log(user)
+    console.log(user);
     if (!user) return responseHandler.badrequest(res, "User not exist");
 
     if (!user.validPassword(password)) return responseHandler.badrequest(res, "Wrong password");

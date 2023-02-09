@@ -54,6 +54,43 @@ const user = [
   }
 ];
 
-const menuConfigs = { main, user };
+const cinemas = [
+  {
+    name: "All",
+    logo: "https://static.vecteezy.com/system/resources/previews/002/372/378/non_2x/cute-star-character-mascot-flat-cartoon-emoticon-design-illustration-vector.jpg",
+    cluster: "all",
+  },
+  {
+    name: "CGV",
+    logo: "https://gigamall.com.vn/data/2019/05/06/11365490_logo-cgv-500x500.jpg",
+    cluster: "cgv",
+  },
+  {
+    name: "BHD Star",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/5/57/Logo_BHD_Star_Cineplex.png",
+    cluster: "bhd",
+    
+  },
+  {
+    name: "Lotte Cinema",
+    logo: "https://tenpack.com.vn/wp-content/uploads/2016/02/logo-lotte-cinema.jpg",
+    cluster: "lotte",
+
+  },
+  {
+    name: "Galaxy Cinema",
+    logo: "https://images.glints.com/unsafe/glints-dashboard.s3.amazonaws.com/company-logo/c366498992d989524d4a69c495a6189e.png",
+    cluster: "galaxy",
+    
+  },
+  {
+    name: "DCINE",
+    logo: "https://img.mservice.io/momo_app_v2/new_version/img/THAO.MAI/DcineLogo.png",
+    cluster: "dcine",
+
+  }
+]
+
+const menuConfigs = { main, user, cinemas };
 
 export default menuConfigs;

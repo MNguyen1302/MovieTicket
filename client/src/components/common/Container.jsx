@@ -8,13 +8,14 @@ const Container = ({ header, children }) => {
       marginRight: "auto",
       color: "text.primary"
     }}>
-      <Stack spacing={4}>
+      <Stack spacing={0}>
         {header && (
           <Box sx={{
             position: "relative",
             paddingX: { xs: "20px", md: 0 },
             maxWidth: "1366px",
             marginX: "auto",
+            marginBottom: "2rem",
             width: "100%",
             "&::before": {
               content: '""',

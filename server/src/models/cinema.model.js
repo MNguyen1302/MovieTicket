@@ -8,6 +8,11 @@ export default mongoose.model(
             type: String,
             required: true
         },
+        cluster: {
+            type: String,
+            enum: ['cgv', 'lotte', 'galaxy', 'dcine', 'bhd'],
+            required: true
+        },
         logo: {
             type: String
         },
