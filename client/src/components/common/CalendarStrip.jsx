@@ -1,9 +1,12 @@
 import { useEffect, useState, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper";
+import moment from "moment";
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import ArrowBackIosRoundedIcon from '@mui/icons-material/ArrowBackIosRounded';
 import { Box, Button, Stack, Typography } from "@mui/material";
+import { setDate } from "../../redux/features/scheduleSlice";
 
 let curr = new Date();
 const CalendarStrip = () => {
@@ -13,6 +16,8 @@ const CalendarStrip = () => {
 
     const prevRef = useRef();
     const nextRef = useRef();
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (swiper) {
@@ -29,14 +34,18 @@ const CalendarStrip = () => {
             let next = new Date(curr.getTime());
             next.setDate(first+i);
             const dayOfWeek = next.toString().split(" ")[0];
-            const day = next.toString().split(" ")[2]
-            setDateStrip(oldDate => [...oldDate, { dayOfWeek, day }])                  
+            const month = next.toString().split(" ")[1];
+            const day = next.toString().split(" ")[2];
+            const year = next.toString().split(" ")[3];
+            setDateStrip(oldDate => [...oldDate, { dayOfWeek, month, day, year }])  
         }
-        console.log(dateStrip)
     }, [curr])
     
-    const handleClick = (index) => {
+    const handleClick = (index, date) => {
+        const newDate = new Date(date);
+        const formatDate = moment(newDate).format("YYYY-MM-DD");
         setActiveIndex(index);
+        dispatch(setDate(formatDate));
     }
 
     return (
@@ -73,7 +82,7 @@ const CalendarStrip = () => {
                 onClick={() => console.log('click')}
             >
                 {dateStrip.map((d, index) => (
-                    <SwiperSlide key={index} onClick={(e) => handleClick(index)}>
+                    <SwiperSlide key={index} onClick={(e) => handleClick(index, `${d.dayOfWeek} ${d.month} ${d.day} ${d.year}`)}>
                         <Box sx={{ color: "text.primary" }}>
                             <Stack 
                                 className={activeIndex === index ? 'active' : ''}
@@ -81,7 +90,6 @@ const CalendarStrip = () => {
                                 spacing={1} 
                                 sx={{ 
                                     padding: "1.1rem", 
-                                    margin: "0 5px", 
                                     backgroundColor: "#545e70",
                                     cursor: "pointer",
                                     transition: "0.2s ease",

@@ -9,6 +9,11 @@ export default mongoose.model(
             ref: "Room",
             required: true
         },
+        cinemaId: {
+            type: Schema.Types.ObjectId,
+            ref: "Cinema",
+            required: true
+        },
         movieId: {
             type: String,
             required: true

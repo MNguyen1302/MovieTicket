@@ -2,7 +2,7 @@ import publicClient from "../client/public.client";
 
 const cinemaEndpoints = {
     list: "cinema/all",
-    getByCluster: ({cluster}) => `cinema/${cluster}`
+    getBySchedule: ({cluster, movieId, date, address}) => `cinema/${movieId}?cluster=${cluster}&date=${date}&address=${address}`,
 }
 
 const cinemaApi = {
@@ -15,9 +15,9 @@ const cinemaApi = {
             return { err };
         }
     },
-    getByCluster: async ({ cluster }) => {
+    getBySchedule: async ({ cluster, movieId, date, address }) => {
         try {
-            const response = await publicClient.get(cinemaEndpoints.getByCluster({ cluster }));
+            const response = await publicClient.get(cinemaEndpoints.getBySchedule({ cluster, movieId, date, address }));
 
             return { response };
         } catch (err) {

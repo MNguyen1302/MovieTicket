@@ -5,6 +5,6 @@ const router = express.Router({ mergeParams: true });
 
 router.get("/all", cinemaController.getList);
 
-router.get("/:cluster", cinemaController.getCinemaByCluster);
+router.get("/:movieId", cinemaController.getCinemaBySchedule);
 
 export default router;

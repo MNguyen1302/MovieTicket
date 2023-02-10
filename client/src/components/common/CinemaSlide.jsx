@@ -33,7 +33,7 @@ const CinemaSlide = () => {
     }
 
     return (
-        <Box mt={0} sx={{  display: "flex",
+        <Box sx={{  display: "flex",
                     flexDirection: "row",
                     border: "solid 1px #545e70",
                     "& .swiper-slide": {

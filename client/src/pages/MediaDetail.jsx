@@ -178,7 +178,7 @@ const MediaDetail = () => {
                         </Box>
                     </Box>
                 
-                    <Stack direction="row">
+                    <Stack direction={{ sm: "column", md: "row" }}>
                         <LeftMedia/>
                         <RightMedia/>
                     </Stack>
