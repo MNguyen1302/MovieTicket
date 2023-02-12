@@ -1,4 +1,4 @@
-import { Alert, Box, Modal } from "@mui/material";
+import { Box, Modal } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { setAuthModalOpen } from "../../redux/features/authModalSlice";

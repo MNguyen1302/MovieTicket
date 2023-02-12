@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { Box, Accordion, AccordionSummary, AccordionDetails, Typography, Stack, Grid, Paper } from '@mui/material';
+import { Box, Accordion, AccordionSummary, AccordionDetails, Typography, Stack, Grid, Paper, Button } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { toast } from 'react-toastify';
 import uiConfigs from '../../configs/ui.configs';
 import cinemaApi from '../../api/modules/cinema.api';
 import SpinnerLoading from './SpinnerLoading';
 import { setSpinnerLoading } from '../../redux/features/globalLoadingSlice';
+import BookingDialog from './BookingDialog';
 
 const time = ['17:00 ~ 18:00', '19:00 ~ 20:00', '21:00 ~ 22:00', '23:00 ~ 23:30', '23:00 ~ 23:30', '23:00 ~ 23:30', '23:00 ~ 23:30'];
 const ScheduleAccordion = () => {
@@ -15,7 +16,9 @@ const ScheduleAccordion = () => {
     const { cluster, date, address } = useSelector(state => state.schedule);
 
     const [cinemas, setCinemas] = useState([]);
+    const [schedules, setSchedules] = useState([]);
     const [expanded, setExpanded] = useState();
+    const [open, setOpen] = useState(false);
 
     const { mediaId } = useParams();
 
@@ -26,10 +29,12 @@ const ScheduleAccordion = () => {
             dispatch(setSpinnerLoading(true));
             const { response, err } = await cinemaApi.getBySchedule({ cluster, movieId: mediaId, date, address });
 
-            if (response) setCinemas(response);
+            if (response) {
+                setCinemas(response.cinemas);
+                setSchedules(response.schedules)
+            }
             if (err) toast.error(err.message);
             dispatch(setSpinnerLoading(false));
-
         }
 
         getCinemas();
@@ -38,7 +43,15 @@ const ScheduleAccordion = () => {
     const handleChange = (index) => (e, newExpanded) => {
         setExpanded(newExpanded ? index : false);
     }
+
+    const handleCloseDialog = () => {
+        setOpen(false);
+    }
     
+    const handleOpenDialog = () => {
+        setOpen(true)
+    }
+
     return (
         <Box sx={{
             border: "solid 1px #545e70",
@@ -77,26 +90,26 @@ const ScheduleAccordion = () => {
                                     </Stack>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 20 }} sx={{ margin: "0 10px" }}>
-                                        {time.map((item, index) => (
-                                            <Grid xs={2} md={4} key={index} sx={{ margin: "8px 0", cursor: "pointer" }}>
-                                                <Paper 
+                                    <Grid container spacing={0} columns={{ xs: 4, sm: 8, md: 20 }} sx={{ margin: "0 10px" }}>
+                                        {schedules.map((schedule, index) => (
+                                            (schedule.cinemaId.id === cinema.id) && <Grid item xs={2} md={4} key={index} sx={{ margin: "10px 0", cursor: "pointer" }}>
+                                                <Button
                                                     variant='outlined' 
-                                                    sx={{ 
+                                                    sx={{
                                                         width: "max-content", 
-                                                        padding: { xs: "10px", md: "10px 20px" }, 
                                                         fontSize: "1.1rem", 
                                                         color: "#90b2ca",
                                                         border: "solid 1px #90b2ca"
                                                     }}
-                                                >{item}
-                                                </Paper>
+                                                    onClick={handleOpenDialog}
+                                                >{schedule.startTime + " ~ " + schedule.endTime}</Button>
                                             </Grid>
                                         ))}
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
                         ))}
+                        <BookingDialog open={open} onClose={handleCloseDialog}/>
                     </>
             }
         </Box>

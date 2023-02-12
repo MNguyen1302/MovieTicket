@@ -91,6 +91,25 @@ const cinemas = [
   }
 ]
 
-const menuConfigs = { main, user, cinemas };
+const seatCaptions = [
+  {
+    content: "regular",
+    color: "#722ed1"
+  },
+  {
+    content: "premium",
+    color: "#f5222d"
+  },
+  {
+    content: "sold",
+    color: "#404040"
+  },
+  {
+    content: "selected",
+    color: "#d82d8b"
+  },
+]
+
+const menuConfigs = { main, user, cinemas, seatCaptions };
 
 export default menuConfigs;

@@ -10,16 +10,21 @@ export default mongoose.model(
             required: true
         },
         seatNumber: {
-            type: String,
+            type: Number,
             required: true
         },
         seatType: {
-            type: String,
-            enum: ["Regular", "Premium"],
+            type: Schema.Types.ObjectId,
+            ref: "SeatType",
             required: true
         },
         row: {
             type: String,
+            required: true
+        },
+        isBooking: {
+            type: Number,
+            enum: [0, 1],
             required: true
         }
     }, modelOptions)

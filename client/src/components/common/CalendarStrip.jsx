@@ -29,7 +29,7 @@ const CalendarStrip = () => {
     }, [swiper])
 
     useEffect(() => {
-        let first = curr.getDate() - 1;
+        let first = curr.getDate() - 4;
         for(let i = 1; i < 11; i++) {
             let next = new Date(curr.getTime());
             next.setDate(first+i);

@@ -1,7 +1,6 @@
 import responseHandler from "../handlers/response.handler.js";
 import cinemaModel from "../models/cinema.model.js";
 import scheduleModel from "../models/schedule.model.js";
-import roomModel from "../models/room.model.js";
 
 const getList = async (req, res) => {
     try {
@@ -18,21 +17,23 @@ const getCinemaBySchedule = async (req, res) => {
         const { movieId } = req.params;
         const { cluster, date, address } = req.query;
 
-        let cinemas = [], schedules;
-        if (cluster === 'all') cinemas = await cinemaModel.find();
+        let cinemas = [];
+        let schedules = await scheduleModel.find({ date, movieId }).populate("cinemaId");
+        if (cluster === 'all') cinemas = getUniqueItems(schedules);
         else {
-            schedules = await scheduleModel.find({ date, movieId }).populate("cinemaId");
             schedules = schedules.filter(s => s.cinemaId.cluster === cluster)
-            schedules.forEach(s => cinemas.push(s.cinemaId));
-            cinemas = cinemas.filter((cinema, index, self) => 
-                index === self.findIndex(t => t.id === cinema.id)
-            )
+            cinemas = getUniqueItems(schedules);
         }
-        responseHandler.ok(res, cinemas);
+        responseHandler.ok(res, { cinemas, schedules });
     } catch {
         responseHandler.error(res);
     }
 }
 
+const getUniqueItems = (items) => {
+    let newItems = [];
+    items.forEach(item => newItems.push(item.cinemaId));
+    return newItems.filter((cinema, index, self) => index === self.findIndex(t => t.id === cinema.id))
+}
 
 export default { getList, getCinemaBySchedule };
