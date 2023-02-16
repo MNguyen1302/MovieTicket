@@ -56,7 +56,7 @@ const MediaDetail = () => {
         getMedia();
     }, [mediaType, mediaId, dispatch])
     
-    const onFavouriteClick = async () => {
+    const onFavoriteClick = async () => {
         if (!user) return dispatch(setAuthModalOpen(true));
 
         if (onRequest) return;
@@ -157,7 +157,7 @@ const MediaDetail = () => {
                                         startIcon={isFavorite ? <FavoriteIcon/> : <FavoriteBorderOutlinedIcon/>}
                                         loadingPosition="start"
                                         loading={onRequest}
-                                        onClick={onFavouriteClick}
+                                        onClick={onFavoriteClick}
                                     />
                                 </Stack>
 
@@ -178,8 +178,8 @@ const MediaDetail = () => {
                         </Box>
                     </Box>
                 
-                    <Stack direction={{ sm: "column", md: "row" }}>
-                        <LeftMedia/>
+                    <Stack direction={{ sm: "column", lg: "row" }}>
+                        <LeftMedia movieName={media.name || media.title}/>
                         <RightMedia/>
                     </Stack>
                 </Box>

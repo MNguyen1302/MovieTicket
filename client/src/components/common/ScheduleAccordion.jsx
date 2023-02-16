@@ -10,14 +10,14 @@ import SpinnerLoading from './SpinnerLoading';
 import { setSpinnerLoading } from '../../redux/features/globalLoadingSlice';
 import BookingDialog from './BookingDialog';
 
-const time = ['17:00 ~ 18:00', '19:00 ~ 20:00', '21:00 ~ 22:00', '23:00 ~ 23:30', '23:00 ~ 23:30', '23:00 ~ 23:30', '23:00 ~ 23:30'];
-const ScheduleAccordion = () => {
+const ScheduleAccordion = ({ movieName }) => {
     const { spinnerLoading } = useSelector(state => state.globalLoading);
     const { cluster, date, address } = useSelector(state => state.schedule);
 
     const [cinemas, setCinemas] = useState([]);
     const [schedules, setSchedules] = useState([]);
     const [expanded, setExpanded] = useState();
+    const [schedule, setSchedule] = useState();
     const [open, setOpen] = useState(false);
 
     const { mediaId } = useParams();
@@ -48,8 +48,9 @@ const ScheduleAccordion = () => {
         setOpen(false);
     }
     
-    const handleOpenDialog = () => {
+    const handleOpenDialog = (schedule) => {
         setOpen(true)
+        setSchedule(schedule);
     }
 
     return (
@@ -101,7 +102,7 @@ const ScheduleAccordion = () => {
                                                         color: "#90b2ca",
                                                         border: "solid 1px #90b2ca"
                                                     }}
-                                                    onClick={handleOpenDialog}
+                                                    onClick={() => handleOpenDialog(schedule)}
                                                 >{schedule.startTime + " ~ " + schedule.endTime}</Button>
                                             </Grid>
                                         ))}
@@ -109,7 +110,7 @@ const ScheduleAccordion = () => {
                                 </AccordionDetails>
                             </Accordion>
                         ))}
-                        <BookingDialog open={open} onClose={handleCloseDialog}/>
+                        {open && <BookingDialog open={open} onClose={handleCloseDialog} schedule={schedule} movieName={movieName}/>}
                     </>
             }
         </Box>

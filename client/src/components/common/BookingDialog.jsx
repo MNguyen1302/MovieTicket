@@ -1,15 +1,78 @@
-import React from 'react'
-import { Dialog, Box, Button, Typography, Grid, Stack, Divider } from '@mui/material';
+import { useState, useEffect, useRef, forwardRef } from 'react';
+import { Dialog, Box, Button, Typography, Grid, Stack, Divider, Slide } from '@mui/material';
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import menuConfigs from '../../configs/menu.configs';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { toast } from 'react-toastify';
+import seatApi from '../../api/modules/seat.api';
+import dateUtils from '../../utils/date.utils';
 
-const seats = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14']
-const BookingDialog = ({ open, onClose }) => {
+const Transition = forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props}/>
+});
+
+const BookingDialog = ({ open, onClose, schedule, movieName }) => {
+    const [seatReserved, setSeatReserved] = useState([]);
+    const [seats, setSeats] = useState([]);
+    const [price, setPrice] = useState(0);
+
+    const ref = useRef(null);
+
+    useEffect(() => {
+        const getSeats = async () => {
+            const { response, err } = await seatApi.getList({ roomId: schedule.roomId.id });
+
+            if (response) setSeats(response);
+            if (err) toast.error(err.message);
+        }
+
+        getSeats();
+    }, [schedule, seatReserved])
+    
+    const createSeats = (row) => {
+        const rowAlpha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+
+        return seats.filter(seat => seat.row === rowAlpha[row]);
+    }
+
+    const getSeatType = (reserved, isBooking, type) => {
+        if (reserved) return "#d82d8b"
+
+        if (isBooking === 1) return "#404040";
+
+        return type === "Regular" ? "#722ed1" : "#f5222d";
+    }
+
+    const selectSeat = (seat) => {
+        if (seatReserved.findIndex(s => s.id === seat.id) > -1) {
+            setSeatReserved(seatReserved.filter(s => s.id !== seat.id));
+            setPrice(currentPrice => currentPrice - (schedule.cinemaId.price + seat.type.surcharge));
+        } 
+
+        if (seatReserved.length > 7) {
+            return toast.warning("You can only select up to 8 seats at a time");
+        }
+        
+        if (seatReserved.findIndex(s => s.id === seat.id) === -1) {
+            setSeatReserved(currentSeats => [...currentSeats, seat]);
+            setPrice(currentPrice => currentPrice + (schedule.cinemaId.price + seat.type.surcharge));
+        }
+    }
+    
+    const removeAllSeat = () => {
+        setSeatReserved([]);
+        setPrice(0);
+    }
+
+    const handleBuyTicket = () => {
+        if (seatReserved.length < 1) return toast.warning("Please choose up to 1 seat");
+    }
+
     return (
         <Dialog 
             open={open} 
             onClose={onClose} 
+            TransitionComponent={Transition}
             fullWidth={true} 
             maxWidth="lg" 
             PaperProps={{
@@ -34,6 +97,7 @@ const BookingDialog = ({ open, onClose }) => {
                             color: "#fff",
                             "&:hover": { backgroundColor: 'transparent' },
                         }}
+                        onClick={() => onClose()}
                     />
                     <Typography 
                         fontWeight="600" 
@@ -68,27 +132,35 @@ const BookingDialog = ({ open, onClose }) => {
                         flexDirection: "column",
                         padding: "10px"
                     }}>
-                        {Array.from(Array(9)).map(item => (
-                            <Box sx={{
+                        {Array.from(Array(schedule.roomId.totalRows)).map((item, index) => (
+                            <Box key={index} sx={{
                                 display: "flex",
                                 flexDirection: "row",
                                 margin: "4px"
                             }}>
-                                {seats.map((seat, index) => (
-                                    <button style={{
-                                        width: "32px",
-                                        height: "32px",
-                                        backgroundColor: "#f72ed1",
-                                        outline: "none",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        color: "#fff",
-                                        margin: "0 4px",
-                                        fontSize: "0.7rem",
-                                        cursor: "pointer",
-                                        fontWeight: "600"
-                                    }}
-                                    >{seat}</button>
+                                {seats.length > 0 && createSeats(index).map((seat, index) => (
+                                    <button 
+                                        key={index}
+                                        className={seatReserved.findIndex(sr => sr.id === seat.id) > -1 ? "seat-item reserved" : "seat-item available"}
+                                        id={seat.id}
+                                        ref={ref}
+                                        style={{
+                                            position: "relative",
+                                            width: "32px",
+                                            height: "32px",
+                                            backgroundColor: getSeatType(seatReserved.findIndex(sr => sr.id === seat.id) > -1 ? true : false,seat.isBooking, seat.type.name),
+                                            outline: "none",
+                                            border: "none",
+                                            borderRadius: "5px",
+                                            color: "#fff",
+                                            margin: "0 4px",
+                                            fontSize: "0.7rem",
+                                            cursor: "pointer",
+                                            fontWeight: "600",
+                                            transition: "0.3s ease"
+                                        }}
+                                        onClick={() => selectSeat(seat)}
+                                    >{seat.row + "" + seat.column}</button>
                                 ))}
                             </Box>
                         ))}
@@ -110,7 +182,6 @@ const BookingDialog = ({ open, onClose }) => {
                                             <Typography variant="body1" fontSize="0.9rem" fontWeight="500" textTransform="capitalize">{caption.content}</Typography>
                                         </Stack>
                                     </Grid>
-
                                 ))}
                             </Grid>
                         </Box>
@@ -121,8 +192,8 @@ const BookingDialog = ({ open, onClose }) => {
                     padding: "0 30px",
                 }}>
                     <Stack direction="column" sx={{ padding: "1rem 0" }}>
-                        <Typography variant="body1" fontWeight="500" sx={{ color: "#000000" }}>Titanic</Typography>
-                        <Typography variant="body1" sx={{ color: "#f97316" }}>17:15 ~ 20:29 · T3, 14/02 · Phòng chiếu 6</Typography>
+                        <Typography variant="body1" fontWeight="500" sx={{ color: "#000000" }}>{movieName}</Typography>
+                        <Typography variant="body1" sx={{ color: "#f97316" }}>{schedule.startTime + " ~ " + schedule.endTime + " · " + dateUtils.formatDate(schedule.date) + " · " + schedule.roomId.name}</Typography>
                     </Stack>
                     <Divider sx={{ backgroundColor: "#f2f2f2"}}/>
                     <Box sx={{
@@ -133,15 +204,26 @@ const BookingDialog = ({ open, onClose }) => {
                         padding: "0.7rem 0",
                     }}>
                         <Typography fontWeight="500">Seating</Typography>
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ padding: "0 5px", border: "solid 1px #f2f2f2", borderRadius: "5px" }}>
-                            <Typography>A1</Typography>
+                        <Stack 
+                            direction="row" 
+                            spacing={1} 
+                            alignItems="center" 
+                            sx={{ 
+                                padding: "0 5px", 
+                                border: "solid 1px #f2f2f2", 
+                                borderRadius: "5px",
+                                visibility: seatReserved.length > 0 ? "unset" : "hidden"
+                            }}
+                        >
+                            <Typography>{seatReserved.map(seat => ` ${seat.row}${seat.column}`).toString()}</Typography>
                             <Button 
                                 variant='text'
                                 size="large"
                                 startIcon={<CancelIcon/>}
                                 sx={{
-                                    color: "#EF4444"
+                                    color: "#EF4444",
                                 }}
+                                onClick={() => removeAllSeat()}
                             />
                         </Stack>
                     </Box>
@@ -152,19 +234,22 @@ const BookingDialog = ({ open, onClose }) => {
                         justifyContent: "space-between",
                         padding: "1rem 0" 
                     }}>
-                        <Stack direction="column" spacing={1} sx={{ color: "#737373"}}>
+                        <Stack direction="column" spacing={1} sx={{ color: "#737373" }}>
                             <Typography fontSize="0.9rem" fontWeight="500">Temporary</Typography>
-                            <Typography fontSize="1.2rem" fontWeight="500" sx={{ color: "#000000" }}>105.000đ</Typography>
+                            <Typography fontSize="1.2rem" fontWeight="500" sx={{ color: "#000000" }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}</Typography>
                         </Stack>
-                        <Button sx={{ 
-                            color: "#fff", 
-                            backgroundColor: "#90b2ca", 
-                            borderRadius: "5px", 
-                            padding: "0 25px",
-                            "&:hover": {
-                                backgroundColor: "#90b2ca"
-                            }
-                        }}>Buy ticket</Button>    
+                        <Button 
+                            sx={{ 
+                                color: "#fff", 
+                                backgroundColor: "#90b2ca", 
+                                borderRadius: "5px", 
+                                padding: "0 25px",
+                                "&:hover": {
+                                    backgroundColor: "#90b2ca"
+                                }
+                            }}
+                            onClick={() => handleBuyTicket()}
+                        >Buy ticket</Button>    
                     </Box>
                 </Box>
             </Box>

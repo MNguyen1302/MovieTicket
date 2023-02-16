@@ -16,6 +16,14 @@ export default mongoose.model(
         totalSeats: {
             type: Number,
             required: true
+        },
+        totalCols: {
+            type: Number,
+            required: true
+        },
+        totalRows: {
+            type: Number,
+            required: true
         }
     }, modelOptions)
 )

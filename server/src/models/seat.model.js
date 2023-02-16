@@ -9,17 +9,17 @@ export default mongoose.model(
             ref: "Room",
             required: true
         },
-        seatNumber: {
-            type: Number,
-            required: true
-        },
-        seatType: {
+        type: {
             type: Schema.Types.ObjectId,
             ref: "SeatType",
             required: true
         },
         row: {
             type: String,
+            required: true
+        },
+        column: {
+            type: Number,
             required: true
         },
         isBooking: {
