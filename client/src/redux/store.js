@@ -5,6 +5,7 @@ import globalLoadingSlice from "./features/globalLoadingSlice";
 import themeModeSlice from "./features/themeModeSlice";
 import userSlice from "./features/userSlice";
 import scheduleSlice from "./features/scheduleSlice";
+import comboSlice from "./features/comboSlice";
 
 const store = configureStore({
     reducer: {
@@ -13,7 +14,8 @@ const store = configureStore({
         authModal: authModalSlice,
         globalLoading: globalLoadingSlice,
         appState: appStateSlice,
-        schedule: scheduleSlice
+        schedule: scheduleSlice,
+        combo: comboSlice
     }
 });
 

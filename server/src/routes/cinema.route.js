@@ -7,4 +7,6 @@ router.get("/all", cinemaController.getList);
 
 router.get("/:movieId", cinemaController.getCinemaBySchedule);
 
+router.get("/combo/:cluster", cinemaController.getListCombo);
+
 export default router;

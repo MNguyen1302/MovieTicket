@@ -1,20 +1,18 @@
-import { useState, useEffect, useRef, forwardRef } from 'react';
-import { Dialog, Box, Button, Typography, Grid, Stack, Divider, Slide } from '@mui/material';
-import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
+import { useState, useEffect, useRef } from 'react';
+import { Box, Button, Typography, Grid, Stack, Divider } from '@mui/material';
 import menuConfigs from '../../configs/menu.configs';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { toast } from 'react-toastify';
 import seatApi from '../../api/modules/seat.api';
-import dateUtils from '../../utils/date.utils';
-
-const Transition = forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props}/>
-});
+import otherUtils from '../../utils/other.utils';
+import CustomDialog from './CustomDialog';
+import FoodDialog from "./FoodDialog";
 
 const BookingDialog = ({ open, onClose, schedule, movieName }) => {
     const [seatReserved, setSeatReserved] = useState([]);
     const [seats, setSeats] = useState([]);
     const [price, setPrice] = useState(0);
+    const [openFoodDg, setOpenFoodDg] = useState(false);
 
     const ref = useRef(null);
 
@@ -66,49 +64,22 @@ const BookingDialog = ({ open, onClose, schedule, movieName }) => {
 
     const handleBuyTicket = () => {
         if (seatReserved.length < 1) return toast.warning("Please choose up to 1 seat");
+
+        setOpenFoodDg(true);
+    }
+
+    const handleCloseFoodDg = () => {
+        setOpenFoodDg(false);
     }
 
     return (
-        <Dialog 
-            open={open} 
-            onClose={onClose} 
-            TransitionComponent={Transition}
-            fullWidth={true} 
-            maxWidth="lg" 
-            PaperProps={{
-                sx: {
-                    maxHeight: "100%"
-                }
-            }}
-        >
-            <Box sx={{ width: "100%" }}>
-                <Box sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    padding: "8px",
-                    backgroundColor: "#90b2ca"
-                }}>
-                    <Button
-                        variant="text"
-                        size="large"
-                        startIcon={<ArrowBackIosNewRoundedIcon/>}
-                        sx={{
-                            color: "#fff",
-                            "&:hover": { backgroundColor: 'transparent' },
-                        }}
-                        onClick={() => onClose()}
-                    />
-                    <Typography 
-                        fontWeight="600" 
-                        fontSize="1.2rem" 
-                        sx={{ 
-                            width: "100%", 
-                            textAlign: "center",
-                            paddingRight: "3rem"
-                        }}
-                    >Booking Ticket</Typography>
-                </Box>
+        <>
+            <CustomDialog
+                onClose={onClose}
+                open={open}
+                header="booking ticket"
+                width="lg"
+            >
                 <Box sx={{
                     display: "flex",
                     flexDirection: "column",
@@ -193,7 +164,7 @@ const BookingDialog = ({ open, onClose, schedule, movieName }) => {
                 }}>
                     <Stack direction="column" sx={{ padding: "1rem 0" }}>
                         <Typography variant="body1" fontWeight="500" sx={{ color: "#000000" }}>{movieName}</Typography>
-                        <Typography variant="body1" sx={{ color: "#f97316" }}>{schedule.startTime + " ~ " + schedule.endTime + " · " + dateUtils.formatDate(schedule.date) + " · " + schedule.roomId.name}</Typography>
+                        <Typography variant="body1" sx={{ color: "#f97316" }}>{schedule.startTime + " ~ " + schedule.endTime + " · " + otherUtils.formatDate(schedule.date) + " · " + schedule.roomId.name}</Typography>
                     </Stack>
                     <Divider sx={{ backgroundColor: "#f2f2f2"}}/>
                     <Box sx={{
@@ -236,7 +207,7 @@ const BookingDialog = ({ open, onClose, schedule, movieName }) => {
                     }}>
                         <Stack direction="column" spacing={1} sx={{ color: "#737373" }}>
                             <Typography fontSize="0.9rem" fontWeight="500">Temporary</Typography>
-                            <Typography fontSize="1.2rem" fontWeight="500" sx={{ color: "#000000" }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}</Typography>
+                            <Typography fontSize="1.2rem" fontWeight="500" sx={{ color: "#000000" }}>{otherUtils.formatPrice(price)}</Typography>
                         </Stack>
                         <Button 
                             sx={{ 
@@ -252,9 +223,11 @@ const BookingDialog = ({ open, onClose, schedule, movieName }) => {
                         >Buy ticket</Button>    
                     </Box>
                 </Box>
-            </Box>
-        </Dialog>
+            </CustomDialog>
+            <FoodDialog open={openFoodDg} onClose={handleCloseFoodDg} cluster={schedule.cinemaId.cluster} />
+        </>
     )
 }
 
 export default BookingDialog;
+

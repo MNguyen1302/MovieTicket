@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { Box, Accordion, AccordionSummary, AccordionDetails, Typography, Stack, Grid, Paper, Button } from '@mui/material';
+import { Box, Accordion, AccordionSummary, AccordionDetails, Typography, Stack, Grid, Button } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { toast } from 'react-toastify';
 import uiConfigs from '../../configs/ui.configs';
@@ -9,6 +9,7 @@ import cinemaApi from '../../api/modules/cinema.api';
 import SpinnerLoading from './SpinnerLoading';
 import { setSpinnerLoading } from '../../redux/features/globalLoadingSlice';
 import BookingDialog from './BookingDialog';
+import bannerNoResult from '../../images/no_result.png';
 
 const ScheduleAccordion = ({ movieName }) => {
     const { spinnerLoading } = useSelector(state => state.globalLoading);
@@ -60,8 +61,8 @@ const ScheduleAccordion = ({ movieName }) => {
             {
                 spinnerLoading ? <SpinnerLoading/> : 
                     <>
-                        {cinemas.map((cinema, index) => (
-                            <Accordion 
+                        {cinemas.length > 0 ? cinemas.map((cinema, index) => (
+                            <Accordion
                                 key={index} 
                                 elevation={0} 
                                 expanded={expanded === index}
@@ -109,7 +110,17 @@ const ScheduleAccordion = ({ movieName }) => {
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                        ))}
+                        )) : <Stack direction="column" spacing={1} alignItems="center" sx={{ padding: "15px" }}>
+                                <Box sx={{
+                                        width: "120px",
+                                        height: "120px",
+                                        backgroundImage: `url(${bannerNoResult})`,
+                                        backgroundSize: "cover"
+                                    }}
+                                />      
+                                <Typography variant="h6" color="#9e9e9e">No schedules found</Typography>                 
+                            </Stack>
+                        }
                         {open && <BookingDialog open={open} onClose={handleCloseDialog} schedule={schedule} movieName={movieName}/>}
                     </>
             }
